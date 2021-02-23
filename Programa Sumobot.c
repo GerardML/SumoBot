@@ -103,60 +103,10 @@ void main(){
       break;
       case 3:{
          if((DCentro>0)&&(DCentro<10)){
-         
-             int VelDis, a;
-             for(a=0; a<=10; a++){
-                if((DCentro>0)&&(DCentro<a)){
-                VelDis=a;
-                }
-             }            
-      
-             switch(VelDis){
-               case 1:{
-                  set_timer0(53035);
-                  while(get_timer0()>=53035)
-                  {}
-                  output_toggle(pin_d2);
-               }
-               break;
-               case 2:{
-                  set_timer0(53035);
-                  while(get_timer0()>=53035)
-                  {}
-                  output_toggle(pin_d2);
-               }
-               break;
-               case 3:{
-                  set_timer0(53035);
-                  while(get_timer0()>=53035)
-                  {}
-                  output_toggle(pin_d2);
-               }
-               break;
-               case 4:{
-                  set_timer0(53035);
-                  while(get_timer0()>=53035)
-                  {}
-                  output_toggle(pin_d2);
-               }
-               break;
-               case 5:{
-                  set_timer0(53035);
-                  while(get_timer0()>=53035)
-                  {}
-                  output_toggle(pin_d2);
-               }
-               break;
-               case 6: llantas=adelante;
-               break;
-               case 7: llantas=adelante;
-               break;
-               case 8: llantas=adelante;
-               break;
-               case 9: llantas=adelante;
-               break;
-             }            
-        
+            set_timer0(53035);
+            while(get_timer0()>=53035)      //Para un parpadeo de 100ms con un postcaler de 1
+            {}
+            output_toggle(pin_d2);
          }
       }
       break;

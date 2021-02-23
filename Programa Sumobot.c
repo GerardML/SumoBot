@@ -58,7 +58,7 @@ void UltraSensor(){
       if(a==2){
          DCentro=(T/2)/(29.15);
       }
-      if (D<10){
+      if (D<30){
       Sense[a]=1;
       }
       else{
@@ -76,7 +76,7 @@ void main(){
    set_tris_e(0x01);
    llantas=0x00;
    setup_timer_1(T1_INTERNAL|T1_DIV_BY_1);
-   setup_timer_0(T0_INTERNAL|T1_DIV_BY_1);
+   setup_timer_0(RTCC_INTERNAL|RTCC_DIV_128);
    
    for(;;){
       UltraSensor();
@@ -102,14 +102,21 @@ void main(){
       }
       break;
       case 3:{
-         if((DCentro>0)&&(DCentro<10)){
-            set_timer0(53035);
-            
-            
-            while(get_timer0()>=53035)      //Para un parpadeo de 100ms con un postcaler de 1
-            {}
-            output_toggle(pin_d2);
-         }
+         
+         int a;
+         for(a=10; a<=29; a++){
+            if(DCentro>a){
+               set_timer0(21);
+               while(get_timer0()>=21)      //Para un parpadeo de 100ms con un postcaler de 1
+               {}
+               llantas=adelante;
+            }
+            else llantas=atras;
+        }
+       /* if(DCentro<5)
+        {
+            llantas=atras;
+        }*/
       }
       break;
       case 4:{

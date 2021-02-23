@@ -58,7 +58,7 @@ void UltraSensor(){
       if(a==2){
          DCentro=(T/2)/(29.15);
       }
-      if (D<30){
+      if (D<45){
       Sense[a]=1;
       }
       else{
@@ -104,19 +104,16 @@ void main(){
       case 3:{
          
          int a;
-         for(a=10; a<=29; a++){
+         for(a=8; a<=44; a++){
             if(DCentro>a){
                set_timer0(21);
-               while(get_timer0()>=21)      //Para un parpadeo de 100ms con un postcaler de 1
+               while(get_timer0()>=21)      //Para un parpadeo de 10ms con un postcaler de 128
                {}
                llantas=adelante;
             }
             else llantas=atras;
         }
-       /* if(DCentro<5)
-        {
-            llantas=atras;
-        }*/
+        
       }
       break;
       case 4:{

@@ -4,9 +4,11 @@
 #use fast_io (b)
 #use fast_io (d)
 #use fast_io (e)
+
 #byte ultra=0x06       //PortB
 #byte llantas=0x08     //PortD
 #byte ultra2=0x09      //PortE
+
 #define echoIz pin_b0   // Echo Entrada
 #define trigIz pin_b1   // Trig Salida
 #define echoDe pin_b2
@@ -17,6 +19,7 @@
 #define trigIzD pin_b7
 #define echoDeD pin_e0  
 #define trigDeD pin_e1
+
 #define high   output_high
 #define low    output_low
 ////////////////////////////////////ENTRADAS////////////////////////////////////
@@ -30,101 +33,111 @@
 //ASIGNACIÓN DE PINES  DE SALIDA: RD0 -> RD3
 
 ///////////Asignación de etiquetas/nombres a los comandos Hexa//////////////////   
-int adelante=0x0F;  //Se le asigna a "adelante" el codigo Hexa
-int atras=0x00;
+int adelante = 0x0F; //Se le asigna a "adelante" el codigo Hexa
+int atras = 0x00;
 
 
-int trig[5]={trigIz,trigDe,trigCe,trigIzD,trigDeD};
-int echo[5]={echoIz,echoDe,echoCe,echoIzD,echoDeD};
-int Sense[5]={};
-int a,direc=2;
-float DCentro;         //Equivale a la distancia
+int trig[5] = {trigIz, trigDe, trigCe, trigIzD, trigDeD};
+int echo[5] = {echoIz, echoDe, echoCe, echoIzD, echoDeD};
+int Sense[5] = {};
+int a, direc = 2;
+float DCentro; //Equivale a la distancia
 
-void UltraSensor(){
- for(a=0;a<=4;a++){
+void UltraSensor() 
+{
+    //////////////SENSADO DE LOS ULTRASONICOS/////////////////
+    for (a = 0; a <= 4; a++) {
 
+        float T, D;
+        high(trig[a]);
+        delay_us(10);
+        low(trig[a]);
+        while (!input(echo[a])) {
+        }
+        set_timer1(0);
+        while (input(echo[a])) {
+        }
+        T = get_timer1();
+        D = (T / 2) / (29.15);
+        if (a == 2) {
+            DCentro = (T / 2) / (29.15);
+        }
+        if (D < 45) {
+            Sense[a] = 1;
+        } else {
+            Sense[a] = 0;
+        }
+    }
+    /////////ASIGNACION DE 1/0 A LOS ULTRADONICOS QUE DETECTAN/NO DETECTAN//////////
+    if (Sense[0] == 1) direc = 1;
+    if (Sense[1] == 1) direc = 6; //#6 ya que el 2 daba problemas
+    if (Sense[3] == 1) direc = 4;
+    if (Sense[4] == 1) direc = 5;
+    if (Sense[2] == 1) direc = 3; //US Centro/Frontal
 
-   float T,D;
-   high(trig[a]);
-   delay_us(10);
-   low(trig[a]);
-      while(!input(echo[a]))
-      {}
-      set_timer1(0);
-      while(input(echo[a]))
-      {}
-      T=get_timer1();
-      D=(T/2)/(29.15);
-      if(a==2){
-         DCentro=(T/2)/(29.15);
-      }
-      if (D<45){
-      Sense[a]=1;
-      }
-      else{
-      Sense[a]=0;
-      }
-
-
- }
 }
 
 
-void main(){
-   set_tris_b(0x55);
-   set_tris_d(0xF0);
-   set_tris_e(0x01);
-   llantas=0x00;
-   setup_timer_1(T1_INTERNAL|T1_DIV_BY_1);
-   setup_timer_0(RTCC_INTERNAL|RTCC_DIV_128);
-   
-   for(;;){
-      UltraSensor();
-      
-      if(Sense[0]==1) direc=1;
-      if(Sense[1]==1) direc=6; //#6 ya que el 2 daba problemas
-      if(Sense[3]==1) direc=4;
-      if(Sense[4]==1) direc=5;
-      if(Sense[2]==1) direc=3; //US Centro/Frontal
-      
-      
-      switch(direc){
-      case 2:{          //Case de Inicio, Se cambió de ->0 a ->2, ya que siempre comenzaba en el 2
-         llantas=atras;
-      }
-      break;
-      case 1:{
-         llantas=atras;
-      }
-      break;
-      case 6:{
-         llantas=adelante;
-      }
-      break;
-      case 3:{
-         
-         int a;
-         for(a=8; a<=44; a++){
-            if(DCentro>a){
-               set_timer0(21);
-               while(get_timer0()>=21)      //Para un parpadeo de 10ms con un postcaler de 128
-               {}
-               llantas=adelante;
-            }
-            else llantas=atras;
+void Direcciones() 
+{
+//////////////CAMBIO DE DIRECCIONES Y PWM EN ULTRASONICO FRONTAL////////////////
+    switch (direc) {
+        case 2:
+        { //Case de Inicio, Se cambió de ->0 a ->2, ya que siempre comenzaba en el 2
+            llantas = atras;
         }
-        
-      }
-      break;
-      case 4:{
-         llantas=adelante;
-      }
-      break;
-      case 5:{
-         llantas=adelante;
-      }
-      break;
-      }
-   }
+            break;
+        case 1:
+        {
+            llantas = atras;
+        }
+            break;
+        case 6:
+        {
+            llantas = adelante;
+        }
+            break;
+        case 3:
+        {
+
+            int a;
+            for (a = 8; a <= 44; a++) {
+                if (DCentro > a) {
+                    set_timer0(21);
+                    while (get_timer0() >= 21) //Para un parpadeo de 10ms con un postcaler de 128
+                    {
+                    }
+                    llantas = adelante;
+                } else llantas = atras;
+            }
+
+        }
+            break;
+        case 4:
+        {
+            llantas = adelante;
+        }
+            break;
+        case 5:
+        {
+            llantas = adelante;
+        }
+            break;
+    }
+}
+
+void main() {
+    set_tris_b(0x55);
+    set_tris_d(0xF0);
+    set_tris_e(0x01);
+    llantas = 0x00;
+    setup_timer_1(T1_INTERNAL | T1_DIV_BY_1);
+    setup_timer_0(RTCC_INTERNAL | RTCC_DIV_128);
+
+    for (;;) {
+        UltraSensor();
+        Direcciones();
+
+    }
 }
 

@@ -38,8 +38,8 @@
 ///////////Asignación de etiquetas/nombres a los comandos Hexa//////////////////   
 int avanzar     = 0b1001; //Se le asigna a "adelante" el codigo Hexa
 int reversa     = 0b0110;
-int izquierda   = 0b1010;
-int derecha     = 0b0101;
+int izquierda   = 0b0010;
+int derecha     = 0b0100;
 int detener     = 0b0000;
 
 
@@ -47,9 +47,9 @@ int trig[5] = {trigIz, trigDe, trigCe, trigIzD, trigDeD};
 int echo[5] = {echoIz, echoDe, echoCe, echoIzD, echoDeD};
 int Sense[5] = {};
 int a, direc = 2;
-float DCentro; //Equivale a la distancia
+float DCentro, DOtros; //Equivale a la distancia
 
-void UltraSensor() 
+void UltraSensor()
 {
     //////////////SENSADO DE LOS ULTRASONICOS/////////////////
     for (a = 0; a <= 4; a++) {  //Sensado de 5 UltraSonic
@@ -58,19 +58,24 @@ void UltraSensor()
         high(trig[a]);
         delay_us(10);
         low(trig[a]);
-        while (!input(echo[a])) {
-        }
+        while (!input(echo[a])) 
+        {}
         set_timer1(0);
-        while (input(echo[a])) {
-        }
+        while (input(echo[a])) 
+        {}
         T = get_timer1();
         D = (T / 2) / (29.15);
-        if (a == 2) {
+        DOtros=D;
+        if (a == 2) 
+        {
             DCentro = (T / 2) / (29.15);
         }
-        if (D < 45) {    //Distancia de detección
+        if (D < 45) //Distancia de detección
+        {
             Sense[a] = 1;
-        } else {
+        } 
+        else
+        {
             Sense[a] = 0;
         }
     }
@@ -87,30 +92,39 @@ void UltraSensor()
 void Direcciones() 
 {
 //////////////CAMBIO DE DIRECCIONES Y PWM EN ULTRASONICO FRONTAL////////////////
-    switch (direc) {
+    switch (direc) 
+    {
         case 2: //detenido
         { //Case de Inicio, Se cambió de ->0 a ->2, ya que siempre comenzaba en el 2
-            llantas = reversa;
+            llantas = detener;
         }
             break;
         case 1: //Izquierda
         {
-            llantas = izquierda;
+            if (DOtros > 20) 
+            {     //Distancia de detección
+               llantas = izquierda;
+            } 
         }
             break;
         case 6: //Derecha
         {
-            llantas = derecha;
+            if (DOtros > 20) 
+            {     //Distancia de detección
+               llantas = derecha;
+            } 
         }
             break;
         case 3: //Centro Frontal
         {
 
             int a;
-            for (a = 8; a <= 44; a++) {   //Rango de variación PWM(cm)
-                if (DCentro > a) {
-                    set_timer0(21);
-                    while (get_timer0() >= 21) //Para un parpadeo de 10ms con un prescaler de 128
+            for (a = 20; a <= 44; a++) 
+            {   //Rango de variación PWM(cm)
+                if (DCentro > a) 
+                {
+                    set_timer0(6);
+                    while (get_timer0() >= 6) //Para un parpadeo de 2ms con un prescaler de 16
                     {}
                     llantas = avanzar;
                 } else llantas = detener;
@@ -120,30 +134,41 @@ void Direcciones()
             break;
         case 4:
         {
-            llantas = izquierda;
+            if (DOtros > 20) 
+            {     //Distancia de detección
+               llantas = izquierda;
+            } 
         }
             break;
         case 5:
         {
-            llantas = derecha;
+            if (DOtros > 20) 
+            {     //Distancia de detección
+               llantas = derecha;
+            } 
         }
             break;
+            
+            default:{
+               llantas = detener;
+            }
     }
 }
 
-void main() {
+void main() 
+{
     set_tris_b(0x55);
     set_tris_d(0xF0);
     set_tris_e(0x01);
     llantas = 0x00;
     setup_timer_1(T1_INTERNAL | T1_DIV_BY_1);
-    setup_timer_0(RTCC_INTERNAL | RTCC_DIV_128);
-    delay_ms(3000);
+    setup_timer_0(RTCC_INTERNAL | RTCC_DIV_16);
+    delay_ms(5000);
 
     for (;;) {
         UltraSensor();
+        delay_ms(100);
         Direcciones();
 
     }
 }
-

@@ -8,7 +8,7 @@
 #use fast_io (d)
 #use fast_io (e)
 
-#byte ultra=0x06       //PortB
+#byte ultra=0x06       //Direccion de memoria ram PortB
 #byte llantas=0x08     //PortD
 #byte ultra2=0x09      //PortE
 
